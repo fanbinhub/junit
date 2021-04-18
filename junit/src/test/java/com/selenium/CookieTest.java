@@ -44,14 +44,15 @@ public class CookieTest {
     public void saveCookiesTest(){
         try {
         driver.get("https://work.weixin.qq.com/wework_admin/loginpage_wx?from=myhome");
-        Thread.sleep(1000);
+        Thread.sleep(10000);
         driver.navigate().refresh();//刷新缓存信息
-            Set<Cookie> cookies = driver.manage().getCookies();//获取cookie信息
-            ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory());
-            //将cookie信息写入到指定文件
-            objectMapper.writeValue(new File("cookie.yaml"),cookies);
+        Set<Cookie> cookies = driver.manage().getCookies();//获取cookie信息
+//        driver.navigate().refresh();//刷新缓存信息
+        ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory());
+        // 将cookie信息写入到指定文件
+        objectMapper.writeValue(new File("cookie.yaml"),cookies);
 
-            cookies.forEach(cookie -> System.out.println(
+        cookies.forEach(cookie -> System.out.println(
                     cookie.getName()+":"+cookie.getValue()));
 
         } catch (Exception e) {
@@ -66,8 +67,8 @@ public class CookieTest {
     public void loginCookieTest(){
         try {
             driver.get("https://work.weixin.qq.com/wework_admin/loginpage_wx?from=myhome");
-            ObjectMapper objectMapper=new ObjectMapper();
-            objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
+            ObjectMapper objectMapper=new ObjectMapper(new YAMLFactory());
+//            objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
 //            objectMapper.configure(JsonParser.Feature.ALLOW_SINGLE_QUOTES, true);
 
             //yaml文件格式存在List中（泛型结构需要进行理解）
@@ -79,19 +80,26 @@ public class CookieTest {
 
             cookies.forEach(cookie ->{
                 System.out.println("打印获取到的cookie信息："+cookie.get("name").toString()
-                + cookie.get("value").toString());
-                driver.manage().addCookie(new Cookie(cookie.get("name").toString(),
-                        cookie.get("value").toString()));
+                        +":"+ cookie.get("value").toString());
+                driver.manage().addCookie(new Cookie(cookie.get("name").toString(),cookie.get("value").toString()));
             });
 
-            driver.navigate().refresh();
+            driver.navigate().refresh(); //刷新缓存cookie信息
+            Thread.sleep(5000);
 
-        Thread.sleep(1000);
-        driver.findElement(By.id("menu_contacts")).click();
-        driver.findElement(By.id("memberSearchInput")).sendKeys("核心");
-        driver.findElement(By.xpath("//*[@id='search_party_list']/li")).click();
-        Thread.sleep(5000);
-        driver.findElement(By.xpath("//*[@class='member_colRight_cnt_operation']/a[1]")).click();
+            driver.findElement(By.id("menu_contacts")).click();
+            driver.findElement(By.id("memberSearchInput")).sendKeys("核心");
+            driver.findElement(By.xpath("//*[@id='search_party_list']/li")).click();
+            Thread.sleep(5000);
+            driver.findElement(By.xpath("//*[@class='member_colRight_cnt_operation']/a[1]")).click();
+            //添加成员
+            driver.findElement(By.id("username")).sendKeys("fan1");
+            driver.findElement(By.id("memberAdd_english_name")).sendKeys("组长");
+            driver.findElement(By.id("memberAdd_acctid")).sendKeys("001");
+            driver.findElement(By.id("memberAdd_phone")).sendKeys("18717760792");
+            driver.findElements(By.xpath("//*[@class='qui_btn ww_btn js_btn_save']")).get(0).click();
+
+
 
         } catch (Exception e) {
             e.printStackTrace();
